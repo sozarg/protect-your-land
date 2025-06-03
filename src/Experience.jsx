@@ -1,19 +1,25 @@
-import React from 'react'
+import React, { useRef } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { Physics } from '@react-three/rapier'
 import Ground from './components/Ground' // Imported Ground component
 import Player from './components/Player' // Import Player component
 import WaveSystem from './components/WaveSystem' // Import WaveSystem component
-// import Zombies from './components/Zombies' // TODO: Import zombies/enemies component  
+import ZombieSpawner from './components/ZombieSpawner' // Import ZombieSpawner
+import GameUI from './components/GameUI'
 // import CameraController from './components/CameraController' // TODO: Import camera controller if needed
 
 export default function Experience() {
+  // Create refs for component communication
+  const zombieSpawnerRef = useRef()
+  const playerRef = useRef()
+
   return (
     <div style={{ width: '100vw', height: '100vh' }}>
-      {/* GAME UI OVERLAY - Outside Canvas for proper positioning */}
-      <WaveSystem />
+      {/* GAME UI OVERLAYS - Outside Canvas for proper HTML rendering */}
+      <WaveSystem zombieSpawnerRef={zombieSpawnerRef} />
+      <GameUI playerRef={playerRef} />
       
-      {/* 3D WORLD CANVAS */}
+      {/* 3D WORLD CANVAS - Only 3D elements inside */}
       <Canvas
         camera={{
           position: [10, 15, 10], // Fixed isometric-style camera position
@@ -54,11 +60,11 @@ export default function Experience() {
           <Ground />
 
           {/* GAME ENTITIES */}
-          {/* Player character with physics */}
-          <Player />
+          {/* Player character with physics and health system */}
+          <Player ref={playerRef} zombieSpawnerRef={zombieSpawnerRef} />
           
-          {/* Enemy spawning and wave management */}
-          {/* <Zombies /> */}
+          {/* Zombie spawning and management */}
+          <ZombieSpawner ref={zombieSpawnerRef} playerRef={playerRef} />
         </Physics>
         
         {/* Additional camera controls if needed */}

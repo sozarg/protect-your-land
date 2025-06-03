@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 
-export default function WaveSystem() {
+export default function WaveSystem({ zombieSpawnerRef }) {
   // Wave system state
   const [currentWave, setCurrentWave] = useState(1)
   const [timeUntilNextWave, setTimeUntilNextWave] = useState(120) // 120 seconds = 2 minutes
@@ -14,16 +14,15 @@ export default function WaveSystem() {
   const onNewWave = useCallback((waveNumber) => {
     console.log(`🌊 Starting Wave ${waveNumber}!`)
     
-    // TODO: Add enemy spawning logic here
-    // Example: spawnEnemies(waveNumber * 2) // More enemies each wave
+    // Spawn zombies using the ZombieSpawner ref
+    if (zombieSpawnerRef && zombieSpawnerRef.current) {
+      zombieSpawnerRef.current.spawnWave(waveNumber)
+    }
     
     // Set wave as active for a short time (visual feedback)
     setIsWaveActive(true)
     setTimeout(() => setIsWaveActive(false), 3000) // Active state for 3 seconds
-    
-    // Here you would trigger enemy spawning based on wave number
-    // This function is ready to be extended with actual enemy logic
-  }, [])
+  }, [zombieSpawnerRef])
 
   // Start new wave function
   const startNewWave = useCallback(() => {
@@ -69,6 +68,14 @@ export default function WaveSystem() {
     return 'NEXT WAVE IN'
   }
 
+  // Get zombie count for display
+  const getZombieCount = () => {
+    if (zombieSpawnerRef && zombieSpawnerRef.current) {
+      return zombieSpawnerRef.current.getZombieCount()
+    }
+    return 0
+  }
+
   return (
     <div style={styles.container}>
       {/* Wave Information Display */}
@@ -83,6 +90,11 @@ export default function WaveSystem() {
         
         <div style={styles.countdown}>
           {isWaveActive ? '🌊' : formatTime(timeUntilNextWave)}
+        </div>
+
+        {/* Zombie count display */}
+        <div style={styles.zombieCount}>
+          Zombies: {getZombieCount()}
         </div>
       </div>
 
@@ -152,6 +164,16 @@ const styles = {
     textAlign: 'center',
     color: '#FF6B6B',
     fontFamily: 'monospace',
+    marginBottom: '8px',
+  },
+
+  zombieCount: {
+    fontSize: '14px',
+    color: '#FF6B6B',
+    textAlign: 'center',
+    fontWeight: '500',
+    borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+    paddingTop: '8px',
   },
 
   advanceButton: {
