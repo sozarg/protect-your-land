@@ -1,42 +1,125 @@
+/* ========================================
+   APP STYLES FOR 3D GAME APPLICATION
+   ======================================== */
+
+/* Main App Container - Remove all default constraints */
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  /* Override any inherited styles to ensure full viewport coverage */
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: none !important;
+  max-height: none !important;
+  min-width: none !important;
+  min-height: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  
+  /* Positioning */
+  position: relative;
+  overflow: hidden;
+  
+  /* Background for 3D scene */
+  background-color: #0a0a0a;
+  
+  /* Text alignment reset */
+  text-align: left;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+/* ========================================
+   THREE.JS CANVAS OPTIMIZATION
+   ======================================== */
+
+/* Ensure Canvas elements don't inherit problematic styles */
+canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0;
+  padding: 0;
+  border: none;
+  outline: none;
+  background: transparent;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+/* WebGL Canvas specific optimizations */
+canvas[data-engine="three.js"] {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+/* ========================================
+   GAME UI OVERLAY STYLES (for HUD elements)
+   ======================================== */
+
+/* Container for game UI elements that overlay the 3D scene */
+.game-ui-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* Allow 3D scene interaction by default */
+  z-index: 10; /* Above the 3D canvas */
+}
+
+/* Individual UI elements that need interaction */
+.game-ui-element {
+  pointer-events: auto; /* Re-enable interaction for specific UI elements */
+  position: absolute;
+}
+
+/* HUD styles for health bars, score, etc. */
+.hud-element {
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  padding: 0.5rem;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 0.9rem;
+  backdrop-filter: blur(4px);
+}
+
+/* ========================================
+   RESPONSIVE DESIGN FOR DIFFERENT SCREENS
+   ======================================== */
+
+/* Ensure the game works on different screen sizes */
+@media screen and (max-width: 768px) {
+  #root {
+    /* Mobile optimization */
+    width: 100vw !important;
+    height: 100vh !important;
   }
-  to {
-    transform: rotate(360deg);
+  
+  .hud-element {
+    font-size: 0.8rem;
+    padding: 0.4rem;
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
+@media screen and (orientation: landscape) and (max-height: 500px) {
+  /* Landscape mobile optimization */
+  .hud-element {
+    font-size: 0.75rem;
   }
 }
 
-.card {
-  padding: 2em;
-}
+/* ========================================
+   REMOVE DEFAULT VITE/REACT STYLES
+   ======================================== */
 
+/* Reset any conflicting styles from default templates */
+.logo,
+.card,
 .read-the-docs {
-  color: #888;
+  display: none; /* Hide default Vite elements */
+}
+
+/* Remove any unwanted animations */
+@keyframes logo-spin {
+  /* Override with no-op */
 }
