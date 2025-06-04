@@ -1,10 +1,14 @@
 import React, { useRef, useEffect, useState, forwardRef } from 'react'
-import { useFrame } from '@react-three/fiber'
+import { useFrame, useThree } from '@react-three/fiber'
 import { RigidBody, CapsuleCollider } from '@react-three/rapier'
+import * as THREE from 'three'
 
 const Player = forwardRef(({ zombieSpawnerRef }, ref) => {
   // Reference to the RigidBody for physics manipulation
   const rigidBodyRef = useRef()
+  
+  // Get camera for relative movement
+  const { camera } = useThree()
   
   // Health and combat state
   const [health, setHealth] = useState(100)
@@ -20,7 +24,7 @@ const Player = forwardRef(({ zombieSpawnerRef }, ref) => {
   })
 
   // Configuration
-  const MOVEMENT_SPEED = 5
+  const MOVEMENT_SPEED = 2.2  // Reduced from 5 for better player control
   const JUMP_FORCE = 8
   const MAX_HEALTH = 100
   const DAMAGE_COOLDOWN = 1000 // 1 second in milliseconds
@@ -122,27 +126,44 @@ const Player = forwardRef(({ zombieSpawnerRef }, ref) => {
     // Don't process movement if game is over
     if (isGameOver) return
 
-    // Calculate movement direction based on pressed keys
-    let moveX = 0
-    let moveZ = 0
+    // Calculate movement direction based on pressed keys (CAMERA-RELATIVE)
+    let moveForward = 0
+    let moveRight = 0
 
-    if (keys.w) moveZ -= 1  // Forward (negative Z in our coordinate system)
-    if (keys.s) moveZ += 1  // Backward
-    if (keys.a) moveX -= 1  // Left
-    if (keys.d) moveX += 1  // Right
+    if (keys.w) moveForward += 1  // Forward relative to camera
+    if (keys.s) moveForward -= 1  // Backward relative to camera
+    if (keys.a) moveRight -= 1    // Left relative to camera
+    if (keys.d) moveRight += 1    // Right relative to camera
 
     // Normalize diagonal movement
-    if (moveX !== 0 && moveZ !== 0) {
-      moveX *= 0.707  // 1/√2 to maintain consistent speed
-      moveZ *= 0.707
+    if (moveForward !== 0 && moveRight !== 0) {
+      moveForward *= 0.707  // 1/√2 to maintain consistent speed
+      moveRight *= 0.707
     }
 
-    // Apply movement force to the rigid body
-    if (moveX !== 0 || moveZ !== 0) {
+    // Calculate camera direction vectors
+    if (moveForward !== 0 || moveRight !== 0) {
+      // Get camera's forward direction (but only use X and Z, ignore Y)
+      const cameraDirection = new THREE.Vector3()
+      camera.getWorldDirection(cameraDirection)
+      cameraDirection.y = 0 // Ignore vertical component
+      cameraDirection.normalize()
+
+      // Get camera's right direction
+      const cameraRight = new THREE.Vector3()
+      cameraRight.crossVectors(cameraDirection, new THREE.Vector3(0, 1, 0))
+      cameraRight.normalize()
+
+      // Calculate final movement direction
+      const finalDirection = new THREE.Vector3()
+      finalDirection.addScaledVector(cameraDirection, moveForward)
+      finalDirection.addScaledVector(cameraRight, moveRight)
+      finalDirection.normalize()
+
       const impulse = {
-        x: moveX * MOVEMENT_SPEED,
+        x: finalDirection.x * MOVEMENT_SPEED,
         y: 0,
-        z: moveZ * MOVEMENT_SPEED
+        z: finalDirection.z * MOVEMENT_SPEED
       }
       
       // Apply impulse for movement
