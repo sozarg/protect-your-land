@@ -19,7 +19,7 @@ const ZombieSpawner = forwardRef(({ playerRef }, ref) => {
     
     return {
       x: Math.cos(angle) * distance,
-      y: 1, // Spawn above ground level
+      y: 3, // Spawn well above the elevated terrain
       z: Math.sin(angle) * distance
     }
   }

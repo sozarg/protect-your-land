@@ -28,6 +28,26 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
+  
+  /* FONT FEATURE SETTINGS - Disable advanced font features to prevent GPOS/GSUB errors */
+  font-feature-settings: normal;
+  font-variant-ligatures: none;
+  font-variant-numeric: normal;
+  font-variant-caps: normal;
+}
+
+/* ========================================
+   FONT ERROR PREVENTION
+   ======================================== */
+
+/* Disable advanced typography features globally to prevent console errors */
+*, *::before, *::after {
+  font-feature-settings: "kern" 0, "liga" 0, "clig" 0, "calt" 0;
+  font-variant-ligatures: none;
+  font-variant-numeric: normal;
+  font-variant-caps: normal;
+  font-variant-alternates: normal;
+  font-variant-position: normal;
 }
 
 /* HTML and Body - Full viewport coverage */
@@ -39,6 +59,8 @@ html, body {
   border: none;
   background-color: #0a0a0a;
   overflow: hidden; /* Prevent scrollbars in full-screen game */
+  /* Font optimization for better performance */
+  font-feature-settings: normal;
 }
 
 /* React root container - Full viewport */
@@ -70,6 +92,26 @@ html, body {
   100% {
     transform: scale(1);
     box-shadow: 0 0 0 0 rgba(255, 87, 34, 0);
+  }
+}
+
+/* FadeInOut animation for weapon shop messages */
+@keyframes fadeInOut {
+  0% { 
+    opacity: 0; 
+    transform: translate(-50%, -50%) scale(0.8); 
+  }
+  20% { 
+    opacity: 1; 
+    transform: translate(-50%, -50%) scale(1.1); 
+  }
+  80% { 
+    opacity: 1; 
+    transform: translate(-50%, -50%) scale(1); 
+  }
+  100% { 
+    opacity: 0; 
+    transform: translate(-50%, -50%) scale(0.9); 
   }
 }
 

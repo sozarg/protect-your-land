@@ -15,6 +15,9 @@ const Player = forwardRef(({ zombieSpawnerRef }, ref) => {
   const [isGameOver, setIsGameOver] = useState(false)
   const [lastDamageTime, setLastDamageTime] = useState({}) // Track damage cooldown per zombie ID
   
+  // Weapon system state
+  const [weapons, setWeapons] = useState([]) // Array to store player's weapons
+  
   // State to track which keys are currently pressed
   const [keys, setKeys] = useState({
     w: false,
@@ -179,6 +182,28 @@ const Player = forwardRef(({ zombieSpawnerRef }, ref) => {
     })
   })
 
+  // Weapon system functions
+  const giveWeapon = (weaponName) => {
+    // Check if player already has this weapon
+    if (weapons.includes(weaponName)) {
+      console.log(`Player already has ${weaponName}`)
+      return false
+    }
+
+    // Add weapon to player's inventory
+    setWeapons(prevWeapons => [...prevWeapons, weaponName])
+    console.log(`Player obtained: ${weaponName}`)
+    return true
+  }
+
+  const hasWeapon = (weaponName) => {
+    return weapons.includes(weaponName)
+  }
+
+  const getWeapons = () => {
+    return [...weapons] // Return a copy of the weapons array
+  }
+
   // Expose the rigidBodyRef and health functions to parent component
   React.useImperativeHandle(ref, () => ({
     // Expose RigidBody methods directly
@@ -195,12 +220,18 @@ const Player = forwardRef(({ zombieSpawnerRef }, ref) => {
       setHealth(MAX_HEALTH)
       setIsGameOver(false)
       setLastDamageTime({})
+      setWeapons([]) // Reset weapons on game restart
       // Reset position if needed
       if (rigidBodyRef.current) {
-        rigidBodyRef.current.setTranslation({ x: 0, y: 2, z: 0 })
+        rigidBodyRef.current.setTranslation({ x: 0, y: 2.5, z: 0 })
         rigidBodyRef.current.setLinvel({ x: 0, y: 0, z: 0 })
       }
-    }
+    },
+
+    // Expose weapon system functions
+    giveWeapon,
+    hasWeapon,
+    getWeapons
   }))
 
   // Return only 3D elements valid for R3F Canvas
@@ -208,7 +239,7 @@ const Player = forwardRef(({ zombieSpawnerRef }, ref) => {
     <RigidBody
       ref={rigidBodyRef}
       type="dynamic"              // Dynamic physics body
-      position={[0, 2, 0]}        // Start position above the ground
+      position={[0, 2.5, 0]}        // Start position safely above the ground
       enabledRotations={[false, true, false]}  // Prevent tipping over
     >
       {/* Capsule Collider for smooth movement */}
