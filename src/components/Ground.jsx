@@ -49,7 +49,7 @@ export default function Ground({
   }, [grassLayerInstances])
 
   return (
-    <group position={[0, 0.5, 0]}>
+    <group position={[0, 1, 0]}>
       <instancedMesh
         ref={grassLayerRef}
         args={[null, null, TOTAL_BLOCKS]}

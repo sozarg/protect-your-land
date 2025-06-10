@@ -1,10 +1,12 @@
-import React, { useState, forwardRef, useImperativeHandle, useRef } from 'react'
+import React, { useState, forwardRef, useImperativeHandle, useRef, useEffect } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { RigidBody, CuboidCollider } from '@react-three/rapier'
 
 const ZombieSpawner = forwardRef(({ playerRef }, ref) => {
   // State to manage active zombies
   const [zombies, setZombies] = useState([])
+  // New: Store zombie RigidBody references for attack system
+  const zombieRefs = useRef(new Map()) // Map of zombieId -> rigidBodyRef
 
   // Configuration
   const SPAWN_RADIUS = 8 // Distance from center where zombies spawn
@@ -67,11 +69,37 @@ const ZombieSpawner = forwardRef(({ playerRef }, ref) => {
   // Remove a zombie (for when they're defeated)
   const removeZombie = (zombieId) => {
     setZombies(prevZombies => prevZombies.filter(zombie => zombie.id !== zombieId))
+    // Clean up zombie reference
+    zombieRefs.current.delete(zombieId)
   }
 
   // Clear all zombies (useful for restarting)
   const clearAllZombies = () => {
     setZombies([])
+    // Clear all zombie references
+    zombieRefs.current.clear()
+  }
+
+  // New: Get zombie references for attack system
+  const getZombieRefs = () => {
+    return zombieRefs.current
+  }
+
+  // New: Damage a zombie
+  const damageZombie = (zombieId, damage = 100) => {
+    setZombies(prevZombies => 
+      prevZombies.map(zombie => {
+        if (zombie.id === zombieId) {
+          const newHealth = Math.max(0, zombie.health - damage)
+          if (newHealth <= 0) {
+            // Mark as dead
+            return { ...zombie, health: 0, isAlive: false }
+          }
+          return { ...zombie, health: newHealth }
+        }
+        return zombie
+      })
+    )
   }
 
   // Expose functions to parent component via ref
@@ -80,12 +108,26 @@ const ZombieSpawner = forwardRef(({ playerRef }, ref) => {
     removeZombie,
     clearAllZombies,
     getZombieCount: () => zombies.length,
-    getZombies: () => zombies
+    getZombies: () => zombies,
+    getZombieRefs, // New: For attack system
+    damageZombie   // New: For attack system
   }))
 
   // Individual Zombie Component with AI movement
   const ZombieEntity = ({ zombie }) => {
     const zombieRigidBodyRef = useRef()
+
+    // Register this zombie's reference when component mounts
+    useEffect(() => {
+      if (zombieRigidBodyRef.current) {
+        zombieRefs.current.set(zombie.id, zombieRigidBodyRef.current)
+      }
+      
+      // Cleanup when component unmounts
+      return () => {
+        zombieRefs.current.delete(zombie.id)
+      }
+    }, [zombie.id])
 
     // AI Movement - runs every frame
     useFrame(() => {

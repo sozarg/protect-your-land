@@ -11,8 +11,8 @@ export default function WeaponShop({ playerRef }) {
   const shopRef = useRef()
   
   // Configuration
-  const SHOP_POSITION = [8, 3, 8] // Slightly raised for the pedestal
-  const INTERACTION_DISTANCE = 2.5
+  const INTERACTION_DISTANCE = 3.0
+  const SHOP_POSITION = [8, 2.5, 8] // Corrected to match player height level
   const MESSAGE_DISPLAY_TIME = 2000 // 2 seconds
 
   // Check distance to player every frame

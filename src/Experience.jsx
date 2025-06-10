@@ -37,23 +37,25 @@ export default function Experience() {
         {/* THIRD-PERSON CAMERA - Behind and above player */}
         <PerspectiveCamera
           makeDefault
-          position={[0, 15, 20]}
+          position={[0, 15, 20]}  // Back to reasonable height
           fov={75}
           near={0.1}
           far={300}
-          onUpdate={(camera) => camera.lookAt(0, 0, 0)}
+          onUpdate={(camera) => camera.lookAt(0, 2, 0)}  // Look at correct player height
         />
 
         {/* ORBIT CONTROLS - Allow camera rotation around player */}
         <OrbitControls
-          target={[0, 0, 0]}
+          target={[0, 2, 0]}  // Target at correct player height
           enablePan={false}
           enableZoom={true}
           enableRotate={true}
-          minDistance={10}
+          minDistance={8}     // Minimum distance from target
           maxDistance={40}
-          minPolarAngle={Math.PI / 6}
-          maxPolarAngle={Math.PI / 2.2}
+          minPolarAngle={Math.PI / 8}    // Minimum angle (higher minimum)
+          maxPolarAngle={Math.PI / 2.2}  // Maximum angle
+          minAzimuthAngle={-Infinity}
+          maxAzimuthAngle={Infinity}
           mouseButtons={{
             LEFT: null,
             MIDDLE: null,
@@ -125,12 +127,12 @@ export default function Experience() {
           {/* TERRAIN PHYSICS - Ground collision */}
           <RigidBody 
             type="fixed"
-            position={[0, 1.7, 0]} // Fine-tuned for perfect player alignment
+            position={[0, 1.5, 0]} // Exactly at ground surface (0.5 + 1.0)
           >
             <CuboidCollider 
               args={[
                 TERRAIN_CONFIG.width * TERRAIN_CONFIG.spacing / 2, 
-                0.5, 
+                0.5, // Half the block height
                 TERRAIN_CONFIG.height * TERRAIN_CONFIG.spacing / 2
               ]}
             />
